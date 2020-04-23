@@ -138,14 +138,6 @@ class DatabaseFeatures(BaseDatabaseFeatures):
         'syndication_tests.tests.SyndicationFeedTest.test_latest_post_date',
         'syndication_tests.tests.SyndicationFeedTest.test_rss091_feed',
         'syndication_tests.tests.SyndicationFeedTest.test_template_feed',
-        # datetimes retrieved from the database with the wrong hour when
-        # USE_TZ = True: https://github.com/orijtech/spanner-orm/issues/193
-        'datetimes.tests.DateTimesTests.test_21432',
-        'db_functions.datetime.test_extract_trunc.DateFunctionWithTimeZoneTests.test_trunc_func_with_timezone',
-        'db_functions.datetime.test_extract_trunc.DateFunctionWithTimeZoneTests.test_trunc_timezone_applied_before_truncation',  # noqa
-        # extract() with timezone not working as expected:
-        # https://github.com/orijtech/spanner-orm/issues/191
-        'timezones.tests.NewDatabaseTests.test_query_datetimes',
         # using NULL with + crashes: https://github.com/orijtech/spanner-orm/issues/201
         'annotations.tests.NonAggregateAnnotationTestCase.test_combined_annotation_commutative',
         # Spanner loses DecimalField precision due to conversion to float:

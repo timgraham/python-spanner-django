@@ -15,6 +15,7 @@ from django.conf import settings
 from django.db.backends.base.operations import BaseDatabaseOperations
 from django.db.utils import DatabaseError
 from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 from django.utils.duration import duration_microseconds
 from spanner_dbapi.parse_utils import DateStr, TimestampStr, escape_name
 
@@ -142,10 +143,13 @@ class DatabaseOperations(BaseDatabaseOperations):
         # of datetime with tzinfo=UTC (which should be replaced with the
         # connection's timezone). Django doesn't support nanoseconds so that
         # part is ignored.
-        dt = datetime(
-            value.year, value.month, value.day,
-            value.hour, value.minute, value.second, value.microsecond,
-        )
+        try:
+            dt = datetime(
+                value.year, value.month, value.day,
+                value.hour, value.minute, value.second, value.microsecond,
+            )
+        except AttributeError:  # value is a string
+            return parse_datetime(value)
         return timezone.make_aware(dt, self.connection.timezone) if settings.USE_TZ else dt
 
     def convert_decimalfield_value(self, value, expression, connection):
@@ -203,6 +207,8 @@ class DatabaseOperations(BaseDatabaseOperations):
         if lookup_type == 'week':
             # ...then add a day to get from Sunday to Monday.
             sql = 'TIMESTAMP_ADD(' + sql + ', INTERVAL 1 DAY)'
+        if settings.USE_TZ:
+            sql = 'STRING(' + sql + ", '" + tzname + "')"
         return sql
 
     def time_trunc_sql(self, lookup_type, field_name):
